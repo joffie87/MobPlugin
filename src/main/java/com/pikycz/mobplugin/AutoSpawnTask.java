@@ -61,6 +61,110 @@ public class AutoSpawnTask implements Runnable {
         } else {
             FileLogger.debug("No player online or offline found. Skipping auto spawn.");
         }
+        
+        Server.getInstance().getOnlinePlayers().forEach((name, player) -> {
+            if (Utils.rand(1, 210) > 40) {
+                return;
+            }
+
+            Position pos = player.getPosition();
+            pos.y = this.getSafeYCoord(player.getLevel(), pos, 3);
+
+            if (pos.y > 127 || pos.y < 1 || player.getLevel().getBlockIdAt((int) pos.x, (int) pos.y, (int) pos.z) == Block.AIR) {
+                return;
+            }
+
+            int blockId = player.getLevel().getBlockIdAt((int) pos.x, (int) pos.y, (int) pos.z);
+            int biomeId = player.getLevel().getBiomeId((int) pos.x, (int) pos.z);
+            int blockLightLevel = Math.max(player.getLevel().getBlockLightAt((int) pos.x, (int) pos.y, (int) pos.z),
+            player.getLevel().getBlockSkyLightAt((int) pos.x, (int) pos.y, (int) pos.z));
+
+            if (player.getLevel() == Server.getInstance().getDefaultLevel()) {
+                int time = player.getLevel().getTime() % Level.TIME_FULL;
+                Server.getInstance().getLogger().info(time + " " + (time >= Level.TIME_NIGHT && time < Level.TIME_SUNRISE));
+                if (time >= Level.TIME_NIGHT && time < Level.TIME_SUNRISE) { //check if it's night
+                    if (blockLightLevel < 6) { //check if it's dark enough
+                        switch (Utils.rand(1, 9)) {
+                            case 1:
+                                this.createEntity("Creeper", pos.add(0, 2.8, 0));
+                                break;
+                            case 2:
+                                this.createEntity("Enderman", pos.add(0, 3.8, 0));
+                                break;
+                            case 3:
+                                this.createEntity("Skeleton", pos.add(0, 2.8, 0));
+                                break;
+                            case 4:
+                                if (Utils.rand()) {
+                                    this.createEntity("Spider", pos.add(0, 2.12, 0));
+                                } else {
+                                    this.createEntity("CaveSpider", pos.add(0, 1.8, 0));
+                                }
+                                break;
+                            case 5:
+                                this.createEntity("Zombie", pos.add(0, 2.8, 0));
+                                break;
+                            case 6:
+                                this.createEntity("ZombieVillager", pos.add(0, 2.8, 0));
+                                break;
+                            case 7:
+                                this.createEntity("Husk", pos.add(0, 2.8, 0));
+                                break;
+                            case 8:
+                                this.createEntity("Stray", pos.add(0, 2.8, 0));
+                                break;
+                        }
+                    }
+                } else {
+                    if (biomeId == Biome.JUNGLE && (blockId == Block.GRASS || blockId == Block.LEAVE) && Utils.rand(1, 100) <= 20) {
+                        this.createEntity("Ocelot", pos.add(0, 1.9, 0));
+                        return;
+                    }
+                    if (blockId == Block.GRASS && Utils.rand(1, 100) <= 1) {
+                        if (biomeId == Biome.TAIGA) {
+                            this.createEntity("Wolf", pos.add(0, 1.9, 0));
+                            return;
+                        }
+                    }
+
+                    if (blockId == Block.GRASS) {
+                        switch (Utils.rand(1, 5)) {
+                            case 1:
+                                this.createEntity("Chicken", pos.add(0, 1.7, 0));
+                                break;
+                            case 2:
+                                this.createEntity("Cow", pos.add(0, 2.3, 0));
+                                break;
+                            case 3:
+                                this.createEntity("Pig", pos.add(0, 1.9, 0));
+                                break;
+                            case 4:
+                                this.createEntity("Rabbit", pos.add(0, 1.75, 0));
+                                break;
+                            case 5:
+                                this.createEntity("Sheep", pos.add(0, 2.3, 0));
+                                break;
+                        }
+                    }
+
+                    if (biomeId == Biome.DESERT) {
+                        switch (Utils.rand(1, 2)) {
+                            case 1:
+                                this.createEntity("Husk", pos.add(0, 2.8, 0));
+                                break;
+                        }
+                    }
+
+                    if (biomeId == Biome.ICE_PLAINS) {
+                        switch (Utils.rand(1, 2)) {
+                            case 1:
+                                this.createEntity("PolarBear", pos.add(0, 2.3, 0));
+                                break;
+                        }
+                    }
+                }
+            }
+        });
     }
 
     private void prepareSpawnerClasses() {
