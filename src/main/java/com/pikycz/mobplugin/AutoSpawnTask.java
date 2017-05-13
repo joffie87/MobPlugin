@@ -1,11 +1,14 @@
 package com.pikycz.mobplugin;
 
 import cn.nukkit.Player;
+import cn.nukkit.Server;
 import cn.nukkit.block.Block;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
+import cn.nukkit.level.generator.biome.Biome;
 import cn.nukkit.utils.Config;
+
 import com.pikycz.mobplugin.entities.animal.flying.Bat;
 import com.pikycz.mobplugin.entities.animal.walking.*;
 import com.pikycz.mobplugin.entities.autospawn.IEntitySpawner;
@@ -19,8 +22,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimerTask;
 
-public class AutoSpawnTask implements Runnable {
+public class AutoSpawnTask extends TimerTask {
 
     private Map<Integer, Integer> maxSpawns = new HashMap<>();
 
@@ -33,7 +37,6 @@ public class AutoSpawnTask implements Runnable {
     public AutoSpawnTask(MobPlugin plugin) {
         this.plugin = plugin;
         this.pluginConfig = plugin.getConfig();
-        // this.plugin = plugin;
 
         prepareMaxSpawns();
         try {
@@ -47,6 +50,7 @@ public class AutoSpawnTask implements Runnable {
 
     @Override
     public void run() {
+
         List<Player> players = new ArrayList<>();
 
         for (Level level : plugin.levelsToSpawn.values()) {
@@ -61,7 +65,7 @@ public class AutoSpawnTask implements Runnable {
         } else {
             FileLogger.debug("No player online or offline found. Skipping auto spawn.");
         }
-        
+
         Server.getInstance().getOnlinePlayers().forEach((name, player) -> {
             if (Utils.rand(1, 210) > 40) {
                 return;
@@ -77,7 +81,7 @@ public class AutoSpawnTask implements Runnable {
             int blockId = player.getLevel().getBlockIdAt((int) pos.x, (int) pos.y, (int) pos.z);
             int biomeId = player.getLevel().getBiomeId((int) pos.x, (int) pos.z);
             int blockLightLevel = Math.max(player.getLevel().getBlockLightAt((int) pos.x, (int) pos.y, (int) pos.z),
-            player.getLevel().getBlockSkyLightAt((int) pos.x, (int) pos.y, (int) pos.z));
+                    player.getLevel().getBlockSkyLightAt((int) pos.x, (int) pos.y, (int) pos.z));
 
             if (player.getLevel() == Server.getInstance().getDefaultLevel()) {
                 int time = player.getLevel().getTime() % Level.TIME_FULL;
