@@ -87,7 +87,7 @@ public class AutoSpawnTask extends TimerTask {
                 int time = player.getLevel().getTime() % Level.TIME_FULL;
                 Server.getInstance().getLogger().info(time + " " + (time >= Level.TIME_NIGHT && time < Level.TIME_SUNRISE));
                 if (time >= Level.TIME_NIGHT && time < Level.TIME_SUNRISE) { //check if it's night
-                    if (blockLightLevel < 6) { //check if it's dark enough
+                    if (blockLightLevel < 7) { //check if it's dark enough
                         switch (Utils.rand(1, 9)) {
                             case 1:
                                 this.createEntity("Creeper", pos.add(0, 2.8, 0));
